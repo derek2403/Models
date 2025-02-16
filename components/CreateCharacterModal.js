@@ -1,4 +1,5 @@
 import React from 'react'
+import presets from '../data/presets.json'
 
 export function CreateCharacterModal({ 
   showModal, 
@@ -20,11 +21,26 @@ export function CreateCharacterModal({
     onSubmit(characterForm)
   }
 
+  const handleRandomize = () => {
+    const randomIndex = Math.floor(Math.random() * presets.characters.length)
+    const randomCharacter = presets.characters[randomIndex]
+    setCharacterForm(randomCharacter)
+  }
+
   if (!showModal) return null
 
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-xl w-96">
-      <h2 className="text-2xl mb-4">Create Character</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl">Create Character</h2>
+        <button
+          type="button"
+          onClick={handleRandomize}
+          className="bg-purple-500 text-white p-2 rounded hover:bg-purple-600 flex items-center gap-2"
+        >
+          <span>🎲</span> Random
+        </button>
+      </div>
       <form onSubmit={handleSubmit}>
         <input
           required
