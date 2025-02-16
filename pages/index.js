@@ -101,8 +101,10 @@ export default function Home() {
       <Canvas
         shadows
         camera={{
-          position: [15, 15, 15],
-          fov: 50
+          position: [20, 20, 20],
+          fov: 50,
+          near: 0.1,
+          far: 1000
         }}
       >
         <color attach="background" args={[currentConfig.skyColor]} />
@@ -121,9 +123,16 @@ export default function Home() {
           <Environment weatherType={weather} timeState={timeState} />
           
           <OrbitControls
-            target={[0, 1, 0]}
+            target={[0, 0, 0]}
             maxPolarAngle={Math.PI / 2.5}
-            minPolarAngle={Math.PI / 6}
+            minPolarAngle={Math.PI / 3}
+            maxAzimuthAngle={Math.PI / 2}
+            minAzimuthAngle={-Math.PI / 2}
+            enableZoom={true}
+            enablePan={true}
+            zoomSpeed={0.5}
+            minDistance={10}
+            maxDistance={50}
           />
           
           {weather === 'sunny' && timeState.timeOfDay === 'day' && (
