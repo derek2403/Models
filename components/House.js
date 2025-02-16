@@ -27,7 +27,10 @@ export function House() {
       {/* Outer Walls */}
       <Wall size={[UNIT * 12, WALL_HEIGHT, WALL_THICKNESS]} position={[0, WALL_HEIGHT/2, UNIT * 6]} texture={wallTexture} />
       <Wall size={[UNIT * 12, WALL_HEIGHT, WALL_THICKNESS]} position={[0, WALL_HEIGHT/2, -UNIT * 6]} texture={wallTexture} />
-      <Wall size={[UNIT * 12, WALL_HEIGHT, WALL_THICKNESS]} position={[-UNIT * 6, WALL_HEIGHT/2, 0]} rotation={[0, Math.PI/2, 0]} texture={wallTexture} />
+      
+      {/* Left outer wall with entrance cutout */}
+      <Wall size={[UNIT * 5, WALL_HEIGHT, WALL_THICKNESS]} position={[-UNIT * 6, WALL_HEIGHT/2, UNIT * 3.5]} rotation={[0, Math.PI/2, 0]} texture={wallTexture} />
+      <Wall size={[UNIT * 5, WALL_HEIGHT, WALL_THICKNESS]} position={[-UNIT * 6, WALL_HEIGHT/2, -UNIT * 3.5]} rotation={[0, Math.PI/2, 0]} texture={wallTexture} />
       <Wall size={[UNIT * 12, WALL_HEIGHT, WALL_THICKNESS]} position={[UNIT * 6, WALL_HEIGHT/2, 0]} rotation={[0, Math.PI/2, 0]} texture={wallTexture} />
 
       {/* Room 1 (Top Left) */}
