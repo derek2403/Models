@@ -4,12 +4,37 @@ import * as THREE from 'three'
 
 export function useCharacterController(animations, model) {
   const currentAnimation = useRef(null)
+  const currentDirection = useRef('front') // 'front', 'back', 'left', 'right'
+  const isRotating = useRef(false)
+  const targetRotation = useRef(0)
+  
   const moveState = useRef({
     forward: false,
     backward: false,
     left: false,
     right: false
   })
+
+  const ROTATION_SPEED = 10 // Adjust for faster/slower turning
+  const MOVEMENT_SPEED = 0.1
+
+  const getRotationForDirection = (direction) => {
+    switch(direction) {
+      case 'front': return Math.PI        // Facing forward (no change)
+      case 'back': return 0               // Facing backward (no change)
+      case 'left': return -Math.PI / 2    // Changed: Now faces left when moving left
+      case 'right': return Math.PI / 2    // Changed: Now faces right when moving right
+      default: return Math.PI
+    }
+  }
+
+  const turnToDirection = (newDirection) => {
+    if (currentDirection.current !== newDirection) {
+      isRotating.current = true
+      currentDirection.current = newDirection
+      targetRotation.current = getRotationForDirection(newDirection)
+    }
+  }
 
   const playAnimation = (name) => {
     if (!animations || !animations[name]) return
@@ -34,25 +59,29 @@ export function useCharacterController(animations, model) {
         case 'KeyW':
           if (!moveState.current.forward) {
             moveState.current.forward = true
+            turnToDirection('front')
             playAnimation('Run')
           }
           break
         case 'KeyS':
           if (!moveState.current.backward) {
             moveState.current.backward = true
+            turnToDirection('back')
             playAnimation('Run')
           }
           break
         case 'KeyA':
           if (!moveState.current.left) {
             moveState.current.left = true
-            playAnimation('Left')
+            turnToDirection('left')
+            playAnimation('Run')
           }
           break
         case 'KeyD':
           if (!moveState.current.right) {
             moveState.current.right = true
-            playAnimation('Right')
+            turnToDirection('right')
+            playAnimation('Run')
           }
           break
         case 'Digit1': playAnimation('Dancing'); break
@@ -100,16 +129,50 @@ export function useCharacterController(animations, model) {
   useFrame((state, delta) => {
     if (!model.current) return
 
-    const moveX = Number(moveState.current.right) - Number(moveState.current.left)
-    const moveZ = Number(moveState.current.backward) - Number(moveState.current.forward)
-
-    if (moveX !== 0 || moveZ !== 0) {
-      const angle = Math.atan2(moveX, moveZ)
-      model.current.rotation.y = angle
+    // Handle rotation
+    if (isRotating.current) {
+      const currentRot = model.current.rotation.y
+      const targetRot = targetRotation.current
       
-      const speed = 0.1
-      model.current.position.x += moveX * speed
-      model.current.position.z += moveZ * speed
+      // Calculate the shortest rotation path
+      let rotationDiff = targetRot - currentRot
+      while (rotationDiff > Math.PI) rotationDiff -= 2 * Math.PI
+      while (rotationDiff < -Math.PI) rotationDiff += 2 * Math.PI
+      
+      if (Math.abs(rotationDiff) < 0.1) {
+        // Rotation complete
+        model.current.rotation.y = targetRot
+        isRotating.current = false
+      } else {
+        // Smooth rotation
+        model.current.rotation.y += rotationDiff * delta * ROTATION_SPEED
+      }
+    }
+
+    // Handle movement in the facing direction
+    if (moveState.current.forward || 
+        moveState.current.backward || 
+        moveState.current.left || 
+        moveState.current.right) {
+      
+      const moveVector = new THREE.Vector3()
+      
+      switch(currentDirection.current) {
+        case 'front':
+          moveVector.z = -MOVEMENT_SPEED
+          break
+        case 'back':
+          moveVector.z = MOVEMENT_SPEED
+          break
+        case 'left':
+          moveVector.x = -MOVEMENT_SPEED
+          break
+        case 'right':
+          moveVector.x = MOVEMENT_SPEED
+          break
+      }
+
+      model.current.position.add(moveVector)
     }
   })
 
