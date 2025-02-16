@@ -1,17 +1,8 @@
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { OrbitControls, Environment as EnvironmentMap } from '@react-three/drei'
 import { Suspense } from 'react'
 import { Boy } from '../components/Boy'
-import { Girl } from '../components/Girl'
-
-function Ground() {
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-      <planeGeometry args={[100, 100]} />
-      <meshStandardMaterial color="#303030" />
-    </mesh>
-  )
-}
+import { Environment } from '../components/Environment'
 
 export default function Home() {
   return (
@@ -19,17 +10,14 @@ export default function Home() {
       <Canvas
         shadows
         camera={{
-          position: [20, 20, 20], // Isometric-like position
-          fov: 50,
-          near: 0.1,
-          far: 1000
+          position: [15, 15, 15],
+          fov: 50
         }}
-        style={{ background: '#87CEEB' }}
       >
         <Suspense fallback={null}>
           <ambientLight intensity={0.5} />
           <directionalLight
-            position={[5, 5, 5]}
+            position={[10, 10, 5]}
             intensity={1}
             castShadow
             shadow-mapSize-width={2048}
@@ -37,19 +25,15 @@ export default function Home() {
           />
           
           <Boy />
-          {/* <Girl /> */}
+          <Environment />
           
-          <Ground />
           <OrbitControls
             target={[0, 1, 0]}
-            maxPolarAngle={Math.PI / 3} // Limit camera angle
-            minPolarAngle={Math.PI / 6} // Minimum camera angle
-            maxDistance={30}
-            minDistance={10}
-            enablePan={true}
-            enableZoom={true}
-            enableRotate={true}
+            maxPolarAngle={Math.PI / 2.5}
+            minPolarAngle={Math.PI / 6}
           />
+          
+          <EnvironmentMap preset="sunset" />
         </Suspense>
       </Canvas>
     </div>
