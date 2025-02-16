@@ -1,6 +1,14 @@
 import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 
+// Export constants for use in collision system
+export const HOUSE_CONFIG = {
+  UNIT: 3,
+  WALL_HEIGHT: 3,
+  WALL_THICKNESS: 0.2,
+  FLOOR_HEIGHT: 0
+}
+
 export function House() {
   // Load textures
   const wallTexture = useTexture('/textures/wall.jpg')
@@ -12,14 +20,16 @@ export function House() {
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
   floorTexture.repeat.set(8, 8)
 
-  const UNIT = 3 // Base unit
-  const WALL_HEIGHT = 3
-  const WALL_THICKNESS = 0.2
+  const { UNIT, WALL_HEIGHT, WALL_THICKNESS, FLOOR_HEIGHT } = HOUSE_CONFIG
 
   return (
-    <group position={[0, 0, 0]}>
+    <group position={[0, FLOOR_HEIGHT, 0]}>
       {/* Main Floor */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+      <mesh 
+        rotation={[-Math.PI / 2, 0, 0]} 
+        position={[0, 0, 0]} 
+        receiveShadow
+      >
         <boxGeometry args={[UNIT * 12, UNIT * 12, 0.2]} />
         <meshStandardMaterial map={floorTexture} roughness={0.8} metalness={0.2} />
       </mesh>

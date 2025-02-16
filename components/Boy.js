@@ -93,7 +93,11 @@ export function Boy() {
     }
   }, [animationsLoaded])
 
-  useCharacterController(animationsLoaded, modelRef)
+  const { position } = useCharacterController(animationsLoaded, modelRef)
+
+  useEffect(() => {
+    console.log(`Character is at: ${position.x}, ${position.z}`)
+  }, [position])
 
   if (!model) return null
 

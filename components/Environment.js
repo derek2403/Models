@@ -10,11 +10,18 @@ export function Environment() {
   grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping
   grassTexture.repeat.set(20, 20)  // Increased repeat for larger area
 
+  const GROUND_SIZE = 200
+  const GROUND_HEIGHT = -0.1 // Slightly below 0 to prevent z-fighting
+
   return (
-    <group>
+    <group position={[0, 0, 0]}>
       {/* Grass ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[200, 200]} /> {/* Increased size for larger ground */}
+      <mesh 
+        rotation={[-Math.PI / 2, 0, 0]} 
+        position={[0, GROUND_HEIGHT, 0]} 
+        receiveShadow
+      >
+        <planeGeometry args={[GROUND_SIZE, GROUND_SIZE]} />
         <meshStandardMaterial 
           map={grassTexture}
           roughness={1}
@@ -22,7 +29,7 @@ export function Environment() {
         />
       </mesh>
 
-      {/* Add the house */}
+      {/* House is centered at origin */}
       <House />
     </group>
   )
