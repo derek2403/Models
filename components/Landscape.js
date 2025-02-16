@@ -1,116 +1,96 @@
-import { Tree } from './Tree'
-import { Road } from './Road'
+import { House } from './House'
 import { HOUSE_CONFIG } from './House'
+import * as THREE from 'three'
+import { useTexture } from '@react-three/drei'
 
 const { UNIT } = HOUSE_CONFIG
 
+// Tree component
+function Tree({ position }) {
+  return (
+    <group position={position}>
+      {/* Tree trunk */}
+      <mesh castShadow position={[0, 1, 0]}>
+        <cylinderGeometry args={[0.2, 0.3, 2, 8]} />
+        <meshStandardMaterial color="#4a3728" />
+      </mesh>
+      {/* Tree top */}
+      <mesh castShadow position={[0, 2.5, 0]}>
+        <coneGeometry args={[1, 3, 8]} />
+        <meshStandardMaterial color="#2d5a27" />
+      </mesh>
+    </group>
+  )
+}
+
 export function Landscape() {
-  // Extended tree positions around the house and roads
+  // Load grass texture
+  const grassTexture = useTexture('/textures/grass.png')
+  grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping
+  grassTexture.repeat.set(24, 24)
+  
+  const housePositions = [
+    // North house
+    { position: [0, 0, -UNIT * 8], rotation: [0, Math.PI, 0], id: 'north' },
+    // South house
+    { position: [0, 0, UNIT * 8], rotation: [0, 0, 0], id: 'south' },
+    // East house
+    { position: [UNIT * 8, 0, 0], rotation: [0, Math.PI/2, 0], id: 'east' },
+    // West house
+    { position: [-UNIT * 8, 0, 0], rotation: [0, -Math.PI/2, 0], id: 'west' }
+  ]
+
+  // Tree positions around houses
   const treePositions = [
-    // Original front yard trees
-    [-UNIT * 10, 0, -UNIT * 8],
-    [-UNIT * 10, 0, -UNIT * 6],
-    [-UNIT * 12, 0, -UNIT * 7],
-    
-    // Additional front yard trees
-    [-UNIT * 11, 0, -UNIT * 9],
-    [-UNIT * 9, 0, -UNIT * 7],
-    [-UNIT * 13, 0, -UNIT * 8],
-    
-    // Original back yard trees
-    [-UNIT * 10, 0, UNIT * 8],
-    [-UNIT * 12, 0, UNIT * 7],
-    [-UNIT * 9, 0, UNIT * 6],
-    
-    // Additional back yard trees
-    [-UNIT * 11, 0, UNIT * 9],
-    [-UNIT * 13, 0, UNIT * 8],
-    
-    // Right side trees - extended
-    [UNIT * 8, 0, -UNIT * 8],
-    [UNIT * 8, 0, -UNIT * 4],
-    [UNIT * 8, 0, 0],
-    [UNIT * 8, 0, UNIT * 4],
-    [UNIT * 8, 0, UNIT * 8],
-    [UNIT * 9, 0, -UNIT * 6],
-    [UNIT * 9, 0, -UNIT * 2],
-    [UNIT * 9, 0, UNIT * 2],
-    [UNIT * 9, 0, UNIT * 6],
-    
-    // Far right trees - extended
-    [UNIT * 12, 0, -UNIT * 6],
-    [UNIT * 12, 0, -UNIT * 2],
-    [UNIT * 12, 0, UNIT * 2],
-    [UNIT * 12, 0, UNIT * 6],
-    [UNIT * 13, 0, -UNIT * 4],
-    [UNIT * 13, 0, 0],
-    [UNIT * 13, 0, UNIT * 4],
-    
-    // Road side trees - extended
-    [-UNIT * 14, 0, -UNIT * 12],
-    [-UNIT * 14, 0, -UNIT * 8],
-    [-UNIT * 14, 0, -UNIT * 4],
-    [-UNIT * 14, 0, 0],
-    [-UNIT * 14, 0, UNIT * 4],
-    [-UNIT * 14, 0, UNIT * 8],
-    [-UNIT * 14, 0, UNIT * 12],
-    [-UNIT * 15, 0, -UNIT * 10],
-    [-UNIT * 15, 0, -UNIT * 6],
-    [-UNIT * 15, 0, -UNIT * 2],
-    [-UNIT * 15, 0, UNIT * 2],
-    [-UNIT * 15, 0, UNIT * 6],
-    [-UNIT * 15, 0, UNIT * 10],
-    
-    // Corner clusters - extended
-    [-UNIT * 10, 0, -UNIT * 12],
-    [-UNIT * 12, 0, -UNIT * 14],
-    [-UNIT * 11, 0, -UNIT * 13],
-    [UNIT * 10, 0, -UNIT * 12],
-    [UNIT * 12, 0, -UNIT * 14],
-    [UNIT * 11, 0, -UNIT * 13],
-    [UNIT * 10, 0, UNIT * 12],
-    [UNIT * 12, 0, UNIT * 14],
-    [UNIT * 11, 0, UNIT * 13],
-    
-    // Random forest effect - extended
-    [UNIT * 16, 0, -UNIT * 8],
-    [UNIT * 15, 0, -UNIT * 4],
-    [UNIT * 16, 0, 0],
-    [UNIT * 15, 0, UNIT * 4],
-    [UNIT * 16, 0, UNIT * 8],
-    [UNIT * 17, 0, -UNIT * 6],
-    [UNIT * 17, 0, -UNIT * 2],
-    [UNIT * 17, 0, UNIT * 2],
-    [UNIT * 17, 0, UNIT * 6],
-    
-    // New dense forest areas
-    [UNIT * 14, 0, -UNIT * 10],
-    [UNIT * 14, 0, UNIT * 10],
-    [-UNIT * 16, 0, -UNIT * 14],
-    [-UNIT * 16, 0, UNIT * 14],
-    
-    // Additional scattered trees
-    [-UNIT * 13, 0, -UNIT * 11],
-    [-UNIT * 13, 0, UNIT * 11],
-    [UNIT * 11, 0, -UNIT * 9],
-    [UNIT * 11, 0, UNIT * 9],
+    // North cluster
+    [-UNIT * 4, 0, -UNIT * 10],
+    [UNIT * 4, 0, -UNIT * 10],
+    // South cluster
+    [-UNIT * 4, 0, UNIT * 10],
+    [UNIT * 4, 0, UNIT * 10],
+    // East cluster
+    [UNIT * 10, 0, -UNIT * 4],
+    [UNIT * 10, 0, UNIT * 4],
+    // West cluster
+    [-UNIT * 10, 0, -UNIT * 4],
+    [-UNIT * 10, 0, UNIT * 4],
+    // Corner trees
+    [UNIT * 6, 0, UNIT * 6],
+    [-UNIT * 6, 0, UNIT * 6],
+    [UNIT * 6, 0, -UNIT * 6],
+    [-UNIT * 6, 0, -UNIT * 6],
   ]
 
   return (
     <group>
-      <Road />
-      {treePositions.map((position, index) => (
-        <Tree 
-          key={index} 
-          position={position} 
-          // More varied scale for natural look
-          scale={[
-            1.2 + Math.random() * 0.8,  // Increased random variation
-            1.3 + Math.random() * 0.7,  // Taller trees possible
-            1.2 + Math.random() * 0.8
-          ]}
+      {/* Houses */}
+      {housePositions.map((config) => (
+        <House 
+          key={config.id}
+          position={config.position}
+          rotation={config.rotation}
+          id={config.id}
         />
       ))}
+
+      {/* Trees */}
+      {treePositions.map((position, index) => (
+        <Tree key={`tree-${index}`} position={position} />
+      ))}
+
+      {/* Ground plane with updated grass texture */}
+      <mesh 
+        rotation={[-Math.PI / 2, 0, 0]} 
+        position={[0, 0, 0]} 
+        receiveShadow
+      >
+        <planeGeometry args={[UNIT * 24, UNIT * 24]} />
+        <meshStandardMaterial 
+          map={grassTexture}
+          roughness={1}
+          normalScale={new THREE.Vector2(1, 1)}
+        />
+      </mesh>
     </group>
   )
 } 
