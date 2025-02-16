@@ -1,33 +1,20 @@
 import { House } from './House'
 import { HOUSE_CONFIG } from './House'
+import { Tree } from './Tree'
 import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 
 const { UNIT } = HOUSE_CONFIG
 
-// Tree component
-function Tree({ position }) {
-  return (
-    <group position={position}>
-      {/* Tree trunk */}
-      <mesh castShadow position={[0, 1, 0]}>
-        <cylinderGeometry args={[0.2, 0.3, 2, 8]} />
-        <meshStandardMaterial color="#4a3728" />
-      </mesh>
-      {/* Tree top */}
-      <mesh castShadow position={[0, 2.5, 0]}>
-        <coneGeometry args={[1, 3, 8]} />
-        <meshStandardMaterial color="#2d5a27" />
-      </mesh>
-    </group>
-  )
-}
-
 export function Landscape() {
   // Load grass texture
   const grassTexture = useTexture('/textures/grass.png')
+  const roadTexture = useTexture('/textures/road.jpg')
+  
   grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping
   grassTexture.repeat.set(24, 24)
+  roadTexture.wrapS = roadTexture.wrapT = THREE.RepeatWrapping
+  roadTexture.repeat.set(8, 8)
   
   const housePositions = [
     // North house
@@ -75,10 +62,48 @@ export function Landscape() {
 
       {/* Trees */}
       {treePositions.map((position, index) => (
-        <Tree key={`tree-${index}`} position={position} />
+        <Tree 
+          key={`tree-${index}`} 
+          position={position}
+        />
       ))}
 
-      {/* Ground plane with updated grass texture */}
+      {/* Circular Road with markings */}
+      <group>
+        {/* Main Road Surface */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.01, 0]}
+          receiveShadow
+        >
+          <ringGeometry args={[UNIT * 14, UNIT * 18, 64]} />
+          <meshStandardMaterial
+            map={roadTexture}
+            roughness={0.8}
+            color="#333333"
+          />
+        </mesh>
+
+        {/* Yellow Border - Inner */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.02, 0]}
+        >
+          <ringGeometry args={[UNIT * 14, UNIT * 14.3, 64]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+
+        {/* Yellow Border - Outer */}
+        <mesh
+          rotation={[-Math.PI / 2, 0, 0]}
+          position={[0, 0.02, 0]}
+        >
+          <ringGeometry args={[UNIT * 17.7, UNIT * 18, 64]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+      </group>
+
+      {/* Ground plane */}
       <mesh 
         rotation={[-Math.PI / 2, 0, 0]} 
         position={[0, 0, 0]} 
@@ -90,6 +115,28 @@ export function Landscape() {
           roughness={1}
           normalScale={new THREE.Vector2(1, 1)}
         />
+      </mesh>
+    </group>
+  )
+}
+
+// Stop Sign Component
+function StopSign({ position, rotation }) {
+  return (
+    <group position={position} rotation={rotation}>
+      <mesh position={[0, 1.5, 0]}>
+        <cylinderGeometry args={[0.05, 0.05, 3, 8]} />
+        <meshStandardMaterial color="#4A4A4A" />
+      </mesh>
+      
+      <mesh position={[0, 2.8, 0]}>
+        <boxGeometry args={[0.8, 0.8, 0.05]} />
+        <meshStandardMaterial color="#FF0000" />
+      </mesh>
+      
+      <mesh position={[0, 2.8, 0.03]}>
+        <ringGeometry args={[0.3, 0.35, 8]} />
+        <meshStandardMaterial color="#FFFFFF" />
       </mesh>
     </group>
   )
