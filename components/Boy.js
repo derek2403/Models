@@ -11,6 +11,7 @@ export function Boy() {
   const texture = useTexture('/men/shaded.png')
   const modelRef = useRef()
   const mixerRef = useRef()
+  const spotlightRef = useRef()
 
   useEffect(() => {
     const loader = new FBXLoader()
@@ -85,6 +86,15 @@ export function Boy() {
     if (mixerRef.current) {
       mixerRef.current.update(delta)
     }
+
+    if (modelRef.current && spotlightRef.current) {
+      const position = modelRef.current.position
+      // Position the light directly above the character
+      spotlightRef.current.position.set(position.x, position.y + 5, position.z)
+      // Target directly below the light (at character position)
+      spotlightRef.current.target.position.set(position.x, position.y, position.z)
+      spotlightRef.current.target.updateMatrixWorld()
+    }
   })
 
   useEffect(() => {
@@ -102,11 +112,28 @@ export function Boy() {
   if (!model) return null
 
   return (
-    <primitive 
-      ref={modelRef} 
-      object={model} 
-      position={[0, 0, 0]}
-      rotation={[0, Math.PI, 0]}
-    />
+    <>
+      <primitive 
+        ref={modelRef} 
+        object={model} 
+        position={[0, 0, 0]}
+        rotation={[0, Math.PI, 0]}
+      />
+      <group>
+        <spotLight
+          ref={spotlightRef}
+          position={[0, 5, 0]}
+          angle={Math.PI / 3}  // Wider angle (60 degrees)
+          penumbra={0.2}
+          intensity={10}       // Much brighter
+          distance={12}        // Longer range
+          color="#FFFFFF"
+          castShadow
+          decay={1.5}         // Slower light falloff
+        >
+          <primitive object={new THREE.Object3D()} attach="target" />
+        </spotLight>
+      </group>
+    </>
   )
 } 
