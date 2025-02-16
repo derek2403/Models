@@ -4,7 +4,7 @@ import { House } from './House'
 
 export function Environment() {
   // Load grass texture
-  const grassTexture = useTexture('/textures/grass.jpg')
+  const grassTexture = useTexture('/textures/grass.png')
 
   // Configure grass texture repeating
   grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping

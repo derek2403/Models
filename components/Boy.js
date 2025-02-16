@@ -19,14 +19,20 @@ export function Boy() {
       fbx.traverse((child) => {
         if (child.isMesh) {
           child.material = new THREE.MeshStandardMaterial({ 
-            map: texture
+            map: texture,
+            roughness: 0.5,
+            metalness: 0.1,
+            envMapIntensity: 1,
+            color: 0xffffff,
+            normalScale: new THREE.Vector2(1, 1),
+            aoMapIntensity: 1,
           })
           child.castShadow = true
           child.receiveShadow = true
         }
       })
       
-      fbx.scale.setScalar(0.013)
+      fbx.scale.setScalar(0.015)
       
       const mixer = new THREE.AnimationMixer(fbx)
       mixerRef.current = mixer
