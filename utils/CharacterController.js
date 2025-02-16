@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { HOUSE_CONFIG } from '../components/House'
 
@@ -22,6 +22,10 @@ export function useCharacterController(animations, model) {
   const { UNIT } = HOUSE_CONFIG
   const WALL_PADDING = 0.3
   const characterRadius = 0.2
+  const { camera } = useThree()
+  const moveVector = new THREE.Vector3()
+  const cameraDirection = new THREE.Vector3()
+  const cameraRight = new THREE.Vector3()
 
   const getRotationForDirection = (direction) => {
     switch(direction) {
@@ -198,43 +202,46 @@ export function useCharacterController(animations, model) {
         moveState.current.left || 
         moveState.current.right) {
       
-      const moveVector = new THREE.Vector3()
+      // Get camera direction vectors
+      camera.getWorldDirection(cameraDirection)
+      cameraDirection.y = 0
+      cameraDirection.normalize()
       
-      switch(currentDirection.current) {
-        case 'front':
-          moveVector.z = -MOVEMENT_SPEED
-          break
-        case 'back':
-          moveVector.z = MOVEMENT_SPEED
-          break
-        case 'left':
-          moveVector.x = -MOVEMENT_SPEED
-          break
-        case 'right':
-          moveVector.x = MOVEMENT_SPEED
-          break
+      // Get right vector from camera
+      cameraRight.copy(cameraDirection).cross(new THREE.Vector3(0, 1, 0))
+      
+      // Reset move vector
+      moveVector.set(0, 0, 0)
+      
+      // Add movement based on camera direction
+      if (moveState.current.forward) {
+        moveVector.add(cameraDirection)
+      }
+      if (moveState.current.backward) {
+        moveVector.sub(cameraDirection)
+      }
+      if (moveState.current.left) {
+        moveVector.sub(cameraRight)
+      }
+      if (moveState.current.right) {
+        moveVector.add(cameraRight)
       }
 
+      // Normalize and scale movement
+      if (moveVector.length() > 0) {
+        moveVector.normalize().multiplyScalar(MOVEMENT_SPEED)
+      }
+
+      // Update character rotation to face movement direction
+      if (moveVector.length() > 0) {
+        const targetRotation = Math.atan2(moveVector.x, moveVector.z)
+        model.current.rotation.y = targetRotation
+      }
+
+      // Check collision and update position
       const newPosition = model.current.position.clone().add(moveVector)
-      
       if (!checkWallCollision(newPosition)) {
         model.current.position.copy(newPosition)
-      }
-    }
-
-    if (isRotating.current) {
-      const currentRot = model.current.rotation.y
-      const targetRot = targetRotation.current
-      
-      let rotationDiff = targetRot - currentRot
-      while (rotationDiff > Math.PI) rotationDiff -= 2 * Math.PI
-      while (rotationDiff < -Math.PI) rotationDiff += 2 * Math.PI
-      
-      if (Math.abs(rotationDiff) < 0.1) {
-        model.current.rotation.y = targetRot
-        isRotating.current = false
-      } else {
-        model.current.rotation.y += rotationDiff * delta * ROTATION_SPEED
       }
     }
   })

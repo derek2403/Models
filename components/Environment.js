@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { useTexture } from '@react-three/drei'
 import { House } from './House'
+import { Landscape } from './Landscape'
 
 export function Environment() {
   // Load grass texture
@@ -31,6 +32,7 @@ export function Environment() {
 
       {/* House is centered at origin */}
       <House />
+      <Landscape />
     </group>
   )
 } 

@@ -5,20 +5,26 @@ import { Environment } from './Environment'
 import { Boy } from './Boy'
 
 const Scene = () => {
+  // Fixed isometric-like camera position
+  const CAMERA_POSITION = [30, 20, 30]
+  const CAMERA_FOV = 45
+  const CAMERA_TARGET = [0, 0, 0]
+
   return (
     <Canvas 
-      camera={{ position: [0, 10, 20], fov: 45 }}
+      camera={{ 
+        position: CAMERA_POSITION,
+        fov: CAMERA_FOV,
+        // Lock the camera by setting up initial target
+        lookAt: CAMERA_TARGET
+      }}
       shadows
     >
       <color attach="background" args={['#87CEEB']} /> {/* Sky blue background */}
       <Suspense fallback={null}>
         <Environment />
         <Boy />
-        <OrbitControls 
-          makeDefault 
-          maxPolarAngle={Math.PI / 2.5} 
-          minPolarAngle={Math.PI / 6}
-        />
+        {/* Remove OrbitControls to lock camera */}
         <EnvironmentMap preset="sunset" />
         <ambientLight intensity={0.5} />
         <directionalLight 
