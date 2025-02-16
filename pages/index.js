@@ -101,7 +101,7 @@ export default function Home() {
       <Canvas
         shadows
         camera={{
-          position: [20, 20, 20],
+          position: [20, 200, 20],
           fov: 50,
           near: 0.1,
           far: 1000
