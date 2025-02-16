@@ -26,7 +26,7 @@ export function Boy() {
         }
       })
       
-      fbx.scale.setScalar(0.01)
+      fbx.scale.setScalar(0.013)
       
       const mixer = new THREE.AnimationMixer(fbx)
       mixerRef.current = mixer
