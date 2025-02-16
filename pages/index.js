@@ -22,7 +22,14 @@ export default function Home() {
     age: '',
     hobby: '',
     gender: '',
-    characteristics: ['', '', '', '', '']
+    characteristics: ['', '', '', '', ''],
+    goals: ['', '', ''],
+    needs: {
+      hunger: '',
+      energy: '',
+      social: '',
+      happiness: ''
+    }
   })
   const [timeState, setTimeState] = useState({
     timeOfDay: 'day',
@@ -68,7 +75,14 @@ export default function Home() {
       age: '',
       hobby: '',
       gender: '',
-      characteristics: ['', '', '', '', '']
+      characteristics: ['', '', '', '', ''],
+      goals: ['', '', ''],
+      needs: {
+        hunger: 50,
+        energy: 70,
+        social: 30,
+        happiness: 80
+      }
     })
   }
 
