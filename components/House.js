@@ -44,9 +44,106 @@ function StreetLamp({ position, isNight }) {
   )
 }
 
+// Add Furniture components at the top of the file
+function Cupboard({ position, rotation = [0, 0, 0] }) {
+  return (
+    <group position={position} rotation={rotation}>
+      <mesh castShadow receiveShadow position={[0, 1.5, 0]}>
+        <boxGeometry args={[2, 3, 1]} />
+        <meshStandardMaterial color="#8B4513" />
+      </mesh>
+      {/* Door handle */}
+      <mesh position={[0.5, 1.5, 0.51]}>
+        <cylinderGeometry args={[0.05, 0.05, 0.1, 8]} rotation={[Math.PI/2, 0, 0]} />
+        <meshStandardMaterial color="#B8860B" metalness={0.5} />
+      </mesh>
+    </group>
+  )
+}
+
+function Bed({ position, rotation = [0, 0, 0] }) {
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Bed Frame */}
+      <mesh castShadow receiveShadow position={[0, 0.3, 0]}>
+        <boxGeometry args={[2, 0.4, 3]} />
+        <meshStandardMaterial color="#8B4513" />
+      </mesh>
+      {/* Mattress */}
+      <mesh castShadow receiveShadow position={[0, 0.6, 0]}>
+        <boxGeometry args={[1.8, 0.2, 2.8]} />
+        <meshStandardMaterial color="#F5F5DC" />
+      </mesh>
+      {/* Pillow */}
+      <mesh castShadow receiveShadow position={[0, 0.8, -1]}>
+        <boxGeometry args={[1.6, 0.2, 0.6]} />
+        <meshStandardMaterial color="#FFFFFF" />
+      </mesh>
+    </group>
+  )
+}
+
+// Update Computer component with even larger dimensions
+function Computer({ position }) {
+  return (
+    <group position={position}>
+      {/* Monitor - significantly increased size */}
+      <mesh castShadow position={[0, 1.0, 0]}>
+        <boxGeometry args={[1.2, 0.8, 0.1]} /> {/* Increased from [0.8, 0.5, 0.08] */}
+        <meshStandardMaterial color="#2f2f2f" />
+      </mesh>
+      {/* Monitor Stand - taller and thicker */}
+      <mesh castShadow position={[0, 0.5, 0]}>
+        <cylinderGeometry args={[0.12, 0.12, 0.6, 8]} /> {/* Increased from [0.08, 0.08, 0.4] */}
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      {/* Keyboard - wider and deeper */}
+      <mesh castShadow position={[0, 0.15, 0.4]}>
+        <boxGeometry args={[0.9, 0.05, 0.35]} /> {/* Increased from [0.6, 0.03, 0.25] */}
+        <meshStandardMaterial color="#1a1a1a" />
+      </mesh>
+      {/* Mouse pad with mouse */}
+      <mesh castShadow position={[0.6, 0.16, 0.4]}>
+        <boxGeometry args={[0.3, 0.02, 0.25]} />
+        <meshStandardMaterial color="#404040" />
+      </mesh>
+      {/* Mouse */}
+      <mesh castShadow position={[0.6, 0.18, 0.4]}>
+        <boxGeometry args={[0.1, 0.03, 0.15]} />
+        <meshStandardMaterial color="#2f2f2f" />
+      </mesh>
+    </group>
+  )
+}
+
+// Update BigTable component with even larger dimensions
+function BigTable({ position, rotation = [0, 0, 0] }) {
+  return (
+    <group position={position} rotation={rotation}>
+      {/* Table Top - further increased width and depth */}
+      <mesh castShadow receiveShadow position={[0, 1, 0]}>
+        <boxGeometry args={[6, 0.15, 2.5]} /> {/* Increased from [4.5, 0.1, 2] */}
+        <meshStandardMaterial color="#8B4513" />
+      </mesh>
+      {/* Table Legs - adjusted positions for larger table */}
+      {[-2.8, 2.8].map((x) => 
+        [-1, 1].map((z) => (
+          <mesh key={`${x}-${z}`} castShadow receiveShadow position={[x, 0.5, z]}>
+            <boxGeometry args={[0.15, 1, 0.15]} /> {/* Thicker legs */}
+            <meshStandardMaterial color="#8B4513" />
+          </mesh>
+        ))
+      )}
+      {/* Computers on the table - spread out more */}
+      <Computer position={[-2, 1, -0.4]} />
+      <Computer position={[0, 1, -0.4]} />
+      <Computer position={[2, 1, -0.4]} />
+    </group>
+  )
+}
+
 export function House({ timeOfDay = 'day' }) {
   // Add console.log to verify timeOfDay prop
-  console.log('House timeOfDay:', timeOfDay)
   const isNight = timeOfDay === 'night'
   
   // Load textures
@@ -126,6 +223,26 @@ export function House({ timeOfDay = 'day' }) {
       {/* Room 5 (Bottom Right) */}
       <Wall size={[UNIT * 2, WALL_HEIGHT, WALL_THICKNESS]} position={[UNIT * 5, WALL_HEIGHT/2, -UNIT * 2]} texture={wallTexture} isNight={isNight} />
       <Wall size={[UNIT * 4, WALL_HEIGHT, WALL_THICKNESS]} position={[UNIT * 3, WALL_HEIGHT/2, -UNIT * 4]} rotation={[0, Math.PI/2, 0]} texture={wallTexture} isNight={isNight} />
+
+      {/* Add Cupboards */}
+      <Cupboard position={[10.052, 0, -17.44]} rotation={[0, Math.PI/1509, 0]} />
+      <Cupboard position={[8.56, 0, -13.92]} rotation={[0, -Math.PI/0.4, 0]} />
+      <Cupboard position={[-2.41, 0, 16.16]} rotation={[0, Math.PI/2, 0]} />
+      <Cupboard position={[-17.12, 0, 16.02]} rotation={[0, -Math.PI/2, 0]} />
+      <Cupboard position={[-13.34, 0, -6.57]} rotation={[0, Math.PI/1, 0]} />
+
+      {/* Add Beds at correct positions */}
+      <Bed position={[-8.12, 0, -15.88]} rotation={[0, Math.PI/1, 0]} />
+      <Bed position={[-4.70, 0, 15.72]} rotation={[0, -Math.PI/1, 0]} />
+      <Bed position={[10.62, 0, 14.19]} rotation={[0, Math.PI/1, 0]} />
+      <Bed position={[0, 0, -7.43]} rotation={[0, 1.5, 0]} />
+      <Bed position={[16.35, 0, -14.21]} rotation={[0, -Math.PI/2, 0]} />
+
+      {/* Add Big Table with Computers */}
+      <BigTable 
+        position={[8.76, 0, 4.52]} 
+        rotation={[0, Math.PI, 0]} // Rotated to face the wall
+      />
     </group>
   )
 }

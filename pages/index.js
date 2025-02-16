@@ -1,67 +1,42 @@
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Environment as EnvironmentMap } from '@react-three/drei'
-import { Suspense, useState } from 'react'
+import { Suspense, useState, useRef, useEffect } from 'react'
 import { Boy } from '../components/Boy'
 import { Environment } from '../components/Environment'
 import { WeatherControls } from '../components/WeatherControls'
-
-// Weather-specific configurations
-const WEATHER_CONFIGS = {
-  sunny: {
-    day: {
-      skyColor: '#87CEEB',
-      ambientLight: 0.5,
-      directionalLight: 1,
-    },
-    night: {
-      skyColor: '#0A1128',
-      ambientLight: 0.1,
-      directionalLight: 0.05,
-    }
-  },
-  cloudy: {
-    day: {
-      skyColor: '#C4C4C4',
-      ambientLight: 0.3,
-      directionalLight: 0.5,
-    },
-    night: {
-      skyColor: '#1A1A1A',
-      ambientLight: 0.05,
-      directionalLight: 0.03,
-    }
-  },
-  rain: {
-    day: {
-      skyColor: '#4A4A4A',
-      ambientLight: 0.2,
-      directionalLight: 0.3,
-    },
-    night: {
-      skyColor: '#0A0A0A',
-      ambientLight: 0.03,
-      directionalLight: 0.02,
-    }
-  },
-  thunderstorm: {
-    day: {
-      skyColor: '#2A2A2A',
-      ambientLight: 0.1,
-      directionalLight: 0.2,
-    },
-    night: {
-      skyColor: '#050505',
-      ambientLight: 0.02,
-      directionalLight: 0.01,
-    }
-  }
-}
+import { TimeSimulation } from '../utils/TimeSimulation'
+import weatherConfigs from '../config/weather.json'
 
 export default function Home() {
   const [weather, setWeather] = useState('sunny')
-  const [timeOfDay, setTimeOfDay] = useState('day')
+  const [timeState, setTimeState] = useState({
+    timeOfDay: 'day',
+    dayProgress: 0.5,
+    hours: 12,
+    date: new Date()
+  })
+  const timeSimRef = useRef(new TimeSimulation(1000))
 
-  const currentConfig = WEATHER_CONFIGS[weather][timeOfDay]
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const newTimeState = timeSimRef.current.update()
+      setTimeState(newTimeState)
+    }, 16.67)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  // Get current config with fallback to day/night if specific time not found
+  const getCurrentConfig = () => {
+    const timeOfDay = timeState.timeOfDay
+    if (weatherConfigs[weather][timeOfDay]) {
+      return weatherConfigs[weather][timeOfDay]
+    }
+    // Fallback to day/night if specific time not found
+    return weatherConfigs[weather][timeOfDay === 'night' ? 'night' : 'day']
+  }
+
+  const currentConfig = getCurrentConfig()
 
   return (
     <div className="w-full h-screen relative">
@@ -85,7 +60,7 @@ export default function Home() {
           />
           
           <Boy />
-          <Environment weatherType={weather} timeOfDay={timeOfDay} />
+          <Environment weatherType={weather} timeState={timeState} />
           
           <OrbitControls
             target={[0, 1, 0]}
@@ -93,8 +68,7 @@ export default function Home() {
             minPolarAngle={Math.PI / 6}
           />
           
-          {/* Only show environment map during day and sunny weather */}
-          {weather === 'sunny' && timeOfDay === 'day' && (
+          {weather === 'sunny' && timeState.timeOfDay === 'day' && (
             <EnvironmentMap preset="sunset" />
           )}
         </Suspense>
@@ -102,9 +76,9 @@ export default function Home() {
 
       <WeatherControls
         onWeatherChange={setWeather}
-        onTimeChange={setTimeOfDay}
+        timeSimRef={timeSimRef}
         currentWeather={weather}
-        currentTime={timeOfDay}
+        currentTime={timeState.date}
       />
     </div>
   )

@@ -5,32 +5,48 @@ import { HOUSE_CONFIG } from './House'
 const { UNIT } = HOUSE_CONFIG
 
 export function Landscape() {
-  // Tree positions around the house and roads
+  // Extended tree positions around the house and roads
   const treePositions = [
-    // Front yard trees
+    // Original front yard trees
     [-UNIT * 10, 0, -UNIT * 8],
     [-UNIT * 10, 0, -UNIT * 6],
     [-UNIT * 12, 0, -UNIT * 7],
     
-    // Back yard trees
+    // Additional front yard trees
+    [-UNIT * 11, 0, -UNIT * 9],
+    [-UNIT * 9, 0, -UNIT * 7],
+    [-UNIT * 13, 0, -UNIT * 8],
+    
+    // Original back yard trees
     [-UNIT * 10, 0, UNIT * 8],
     [-UNIT * 12, 0, UNIT * 7],
     [-UNIT * 9, 0, UNIT * 6],
     
-    // Right side trees
+    // Additional back yard trees
+    [-UNIT * 11, 0, UNIT * 9],
+    [-UNIT * 13, 0, UNIT * 8],
+    
+    // Right side trees - extended
     [UNIT * 8, 0, -UNIT * 8],
     [UNIT * 8, 0, -UNIT * 4],
     [UNIT * 8, 0, 0],
     [UNIT * 8, 0, UNIT * 4],
     [UNIT * 8, 0, UNIT * 8],
+    [UNIT * 9, 0, -UNIT * 6],
+    [UNIT * 9, 0, -UNIT * 2],
+    [UNIT * 9, 0, UNIT * 2],
+    [UNIT * 9, 0, UNIT * 6],
     
-    // Far right trees
+    // Far right trees - extended
     [UNIT * 12, 0, -UNIT * 6],
     [UNIT * 12, 0, -UNIT * 2],
     [UNIT * 12, 0, UNIT * 2],
     [UNIT * 12, 0, UNIT * 6],
+    [UNIT * 13, 0, -UNIT * 4],
+    [UNIT * 13, 0, 0],
+    [UNIT * 13, 0, UNIT * 4],
     
-    // Road side trees
+    // Road side trees - extended
     [-UNIT * 14, 0, -UNIT * 12],
     [-UNIT * 14, 0, -UNIT * 8],
     [-UNIT * 14, 0, -UNIT * 4],
@@ -38,21 +54,46 @@ export function Landscape() {
     [-UNIT * 14, 0, UNIT * 4],
     [-UNIT * 14, 0, UNIT * 8],
     [-UNIT * 14, 0, UNIT * 12],
+    [-UNIT * 15, 0, -UNIT * 10],
+    [-UNIT * 15, 0, -UNIT * 6],
+    [-UNIT * 15, 0, -UNIT * 2],
+    [-UNIT * 15, 0, UNIT * 2],
+    [-UNIT * 15, 0, UNIT * 6],
+    [-UNIT * 15, 0, UNIT * 10],
     
-    // Corner clusters
+    // Corner clusters - extended
     [-UNIT * 10, 0, -UNIT * 12],
     [-UNIT * 12, 0, -UNIT * 14],
+    [-UNIT * 11, 0, -UNIT * 13],
     [UNIT * 10, 0, -UNIT * 12],
     [UNIT * 12, 0, -UNIT * 14],
+    [UNIT * 11, 0, -UNIT * 13],
     [UNIT * 10, 0, UNIT * 12],
     [UNIT * 12, 0, UNIT * 14],
+    [UNIT * 11, 0, UNIT * 13],
     
-    // Random forest effect
+    // Random forest effect - extended
     [UNIT * 16, 0, -UNIT * 8],
     [UNIT * 15, 0, -UNIT * 4],
     [UNIT * 16, 0, 0],
     [UNIT * 15, 0, UNIT * 4],
     [UNIT * 16, 0, UNIT * 8],
+    [UNIT * 17, 0, -UNIT * 6],
+    [UNIT * 17, 0, -UNIT * 2],
+    [UNIT * 17, 0, UNIT * 2],
+    [UNIT * 17, 0, UNIT * 6],
+    
+    // New dense forest areas
+    [UNIT * 14, 0, -UNIT * 10],
+    [UNIT * 14, 0, UNIT * 10],
+    [-UNIT * 16, 0, -UNIT * 14],
+    [-UNIT * 16, 0, UNIT * 14],
+    
+    // Additional scattered trees
+    [-UNIT * 13, 0, -UNIT * 11],
+    [-UNIT * 13, 0, UNIT * 11],
+    [UNIT * 11, 0, -UNIT * 9],
+    [UNIT * 11, 0, UNIT * 9],
   ]
 
   return (
@@ -62,11 +103,11 @@ export function Landscape() {
         <Tree 
           key={index} 
           position={position} 
-          // Increased base scale with random variation
+          // More varied scale for natural look
           scale={[
-            1.2 + Math.random() * 0.6,
-            1.3 + Math.random() * 0.5,
-            1.2 + Math.random() * 0.6
+            1.2 + Math.random() * 0.8,  // Increased random variation
+            1.3 + Math.random() * 0.7,  // Taller trees possible
+            1.2 + Math.random() * 0.8
           ]}
         />
       ))}
