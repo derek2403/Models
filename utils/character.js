@@ -281,6 +281,17 @@ export const talkTo = (character1, character2, controller1, controller2) => {
   let phase = 'moving'
   let char1Movement = null
   let char2Movement = null
+  
+  // Create offset positions for the characters (1 unit apart)
+  const OFFSET_DISTANCE = 1.0
+  const char1Target = {
+    x: talkingArea.x - OFFSET_DISTANCE/2,
+    z: talkingArea.z
+  }
+  const char2Target = {
+    x: talkingArea.x + OFFSET_DISTANCE/2,
+    z: talkingArea.z
+  }
 
   const interaction = {
     update: (model1, model2, delta) => {
@@ -290,12 +301,78 @@ export const talkTo = (character1, character2, controller1, controller2) => {
         case 'moving':
           // Initialize movements if not already done
           if (!char1Movement) {
-            const movement = goto(character1, talkingArea.id, controller1)
-            if (movement) char1Movement = movement
+            const movement = {
+              update: (model, delta) => {
+                if (!model) return false
+                
+                const dx = model.position.x - char1Target.x
+                const dz = model.position.z - char1Target.z
+                const distance = Math.sqrt(dx * dx + dz * dz)
+                
+                if (distance < 0.1) {
+                  model.position.x = char1Target.x
+                  model.position.z = char1Target.z
+                  return true
+                }
+                
+                const direction = new THREE.Vector3(
+                  char1Target.x - model.position.x,
+                  0,
+                  char1Target.z - model.position.z
+                ).normalize()
+                
+                const moveAmount = 0.1 * delta * 60
+                const movement = direction.multiplyScalar(moveAmount)
+                const newPosition = model.position.clone().add(movement)
+                
+                if (!checkWallCollision(newPosition)) {
+                  model.position.copy(newPosition)
+                  model.rotation.y = Math.atan2(direction.x, direction.z)
+                }
+                
+                return false
+              }
+            }
+            controller1?.playAnimation('Run')
+            char1Movement = movement
           }
+          
           if (!char2Movement) {
-            const movement = goto(character2, talkingArea.id, controller2)
-            if (movement) char2Movement = movement
+            const movement = {
+              update: (model, delta) => {
+                if (!model) return false
+                
+                const dx = model.position.x - char2Target.x
+                const dz = model.position.z - char2Target.z
+                const distance = Math.sqrt(dx * dx + dz * dz)
+                
+                if (distance < 0.1) {
+                  model.position.x = char2Target.x
+                  model.position.z = char2Target.z
+                  controller2?.playAnimation('Talking') // Start talking animation when reached position
+                  return true
+                }
+                
+                const direction = new THREE.Vector3(
+                  char2Target.x - model.position.x,
+                  0,
+                  char2Target.z - model.position.z
+                ).normalize()
+                
+                const moveAmount = 0.1 * delta * 60
+                const movement = direction.multiplyScalar(moveAmount)
+                const newPosition = model.position.clone().add(movement)
+                
+                if (!checkWallCollision(newPosition)) {
+                  model.position.copy(newPosition)
+                  model.rotation.y = Math.atan2(direction.x, direction.z)
+                }
+                
+                return false
+              }
+            }
+            controller2?.playAnimation('Run')
+            char2Movement = movement
           }
 
           // Make sure both movements were initialized
@@ -305,9 +382,10 @@ export const talkTo = (character1, character2, controller1, controller2) => {
           const char1Done = char1Movement.update(model1, delta)
           const char2Done = char2Movement.update(model2, delta)
 
-          // If both characters reached the talking area
+          // If both characters reached their positions
           if (char1Done && char2Done) {
             phase = 'talking'
+            
             // Face each other
             const angle = Math.atan2(
               model2.position.x - model1.position.x,
@@ -316,7 +394,7 @@ export const talkTo = (character1, character2, controller1, controller2) => {
             model1.rotation.y = angle
             model2.rotation.y = angle + Math.PI
 
-            // Start talking animation
+            // Start talking animation for both characters
             controller1?.playAnimation('Talking')
             controller2?.playAnimation('Talking')
           }

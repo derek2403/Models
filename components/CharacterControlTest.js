@@ -106,6 +106,10 @@ export function CharacterControlTest({ characters }) {
       {
         playAnimation: (name) => {
           if (selectedCharacter.animations?.[name]) {
+            // Stop any current animations
+            Object.values(selectedCharacter.animations).forEach(anim => {
+              anim.fadeOut(0.2)
+            })
             selectedCharacter.animations[name].reset().fadeIn(0.2).play()
           }
         }
@@ -113,6 +117,10 @@ export function CharacterControlTest({ characters }) {
       {
         playAnimation: (name) => {
           if (targetCharacter.animations?.[name]) {
+            // Stop any current animations
+            Object.values(targetCharacter.animations).forEach(anim => {
+              anim.fadeOut(0.2)
+            })
             targetCharacter.animations[name].reset().fadeIn(0.2).play()
           }
         }
@@ -120,15 +128,15 @@ export function CharacterControlTest({ characters }) {
     )
 
     if (interaction) {
-      // Wrap the interaction in an object with an update method
+      // Set up both characters to participate in the interaction
       selectedCharacter.ref.current.activeGoto = {
         update: (model, delta) => 
           interaction.update(model, targetCharacter.ref.current, delta)
       }
       
-      // Do the same for the target character
       targetCharacter.ref.current.activeGoto = {
-        update: () => false
+        update: (model, delta) => 
+          interaction.update(targetCharacter.ref.current, selectedCharacter.ref.current, delta)
       }
     }
   }
