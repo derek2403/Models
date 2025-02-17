@@ -106,7 +106,6 @@ export function CharacterControlTest({ characters }) {
       {
         playAnimation: (name) => {
           if (selectedCharacter.animations?.[name]) {
-            // Stop any current animations
             Object.values(selectedCharacter.animations).forEach(anim => {
               anim.fadeOut(0.2)
             })
@@ -117,7 +116,6 @@ export function CharacterControlTest({ characters }) {
       {
         playAnimation: (name) => {
           if (targetCharacter.animations?.[name]) {
-            // Stop any current animations
             Object.values(targetCharacter.animations).forEach(anim => {
               anim.fadeOut(0.2)
             })
@@ -128,16 +126,20 @@ export function CharacterControlTest({ characters }) {
     )
 
     if (interaction) {
-      // Set up both characters to participate in the interaction
-      selectedCharacter.ref.current.activeGoto = {
-        update: (model, delta) => 
-          interaction.update(model, targetCharacter.ref.current, delta)
+      // Set up the interaction for both characters
+      const sharedInteraction = {
+        update: (model, delta) => {
+          return interaction.update(
+            selectedCharacter.ref.current,
+            targetCharacter.ref.current,
+            delta
+          )
+        }
       }
       
-      targetCharacter.ref.current.activeGoto = {
-        update: (model, delta) => 
-          interaction.update(targetCharacter.ref.current, selectedCharacter.ref.current, delta)
-      }
+      // Assign the same interaction to both characters
+      selectedCharacter.ref.current.activeGoto = sharedInteraction
+      targetCharacter.ref.current.activeGoto = sharedInteraction
     }
   }
 

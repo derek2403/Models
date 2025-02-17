@@ -349,7 +349,6 @@ export const talkTo = (character1, character2, controller1, controller2) => {
                 if (distance < 0.1) {
                   model.position.x = char2Target.x
                   model.position.z = char2Target.z
-                  controller2?.playAnimation('Talking') // Start talking animation when reached position
                   return true
                 }
                 
@@ -394,14 +393,16 @@ export const talkTo = (character1, character2, controller1, controller2) => {
             model1.rotation.y = angle
             model2.rotation.y = angle + Math.PI
 
-            // Start talking animation for both characters
+            // Stop running animations first
             controller1?.playAnimation('Talking')
             controller2?.playAnimation('Talking')
           }
           break
 
         case 'talking':
-          // Characters are already talking
+          // Ensure both characters are in talking animation
+          controller1?.playAnimation('Talking')
+          controller2?.playAnimation('Talking')
           return true
       }
 
