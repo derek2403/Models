@@ -1,17 +1,20 @@
-Current Position: x=6.90, z=-5.90
-CharacterController.js:245 Current Position: x=8.30, z=-5.90 Room 2 Door
-Current Position: x=9.60, z=-6.00
-CharacterController.js:245 Current Position: x=11.30, z=-6.00 Room 3 Door
-Current Position: x=-15.20, z=-5.80
-CharacterController.js:245 Current Position: x=-17.30, z=-5.80 Room 1 Door
-Current Position: x=-5.70, z=5.50
-CharacterController.js:245 Current Position: x=-3.00, z=5.50 Room 4 Door
-Current Position: x=-3.00, z=5.50
-CharacterController.js:245 Current Position: x=-0.20, z=5.50 Room 5 Door
+Current Position: x=-2.91, z=-17.10 R1 Cupboard
+CharacterController.js:167 Current Position: x=0.38, z=-17.40 R1 Computer
+CharacterController.js:167 Current Position: x=1.96, z=-17.15 R1 Bed
 
-Current Position: x=6.30, z=-5.90 - Current Position: x=-14.60, z=-5.80 Wall 1
-Current Position: x=-6.60, z=-6.60 - Current Position: x=-6.60, z=-17.50 Wall 2
-Current Position: x=9.20, z=-5.70 - Current Position: x=9.60, z=-17.50 Wall 3
-Current Position: x=17.50, z=-6.60 - Current Position: x=12.10, z=-6.10 Wall 4
-Current Position: x=-0.10, z=5.50 -  Current Position: x=17.50, z=5.50 Wall 5
-Current Position: x=-17.80, z=5.50 - Current Position: x=-6.00, z=5.50 Wall 6
+Current Position: x=-18.56, z=3.43 R2 Cupboard
+CharacterController.js:167 Current Position: x=-18.56, z=0.23 R2 Computer
+CharacterController.js:167 Current Position: x=-18.56, z=-2.17 R2 Bed
+
+Current Position: x=3.30, z=18.64 R3 Cupboard
+CharacterController.js:167 Current Position: x=0.10, z=18.83 R3 Computer
+CharacterController.js:167 Current Position: x=-2.69, z=18.99 R3 Bed
+
+Current Position: x=18.61, z=-3.18 R4 Cupboard
+CharacterController.js:167 Current Position: x=19.40, z=0.02 R4 Computer
+CharacterController.js:167 Current Position: x=19.82, z=2.51 R4 Bed
+
+Current Position: x=-2.91, z=-3.09 Talking Area 1
+CharacterController.js:167 Current Position: x=-2.21, z=1.54 Talking Area 2
+CharacterController.js:167 Current Position: x=1.93, z=2.48 Talking Area 3
+CharacterController.js:167 Current Position: x=0.70, z=-2.31 Talking Area 4

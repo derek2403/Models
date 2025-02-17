@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { HOUSE_CONFIG } from '../components/House'
+import mapData from '../data/map.json'
 
 export function useCharacterController(animations, model) {
   const currentAnimation = useRef(null)
@@ -18,7 +19,7 @@ export function useCharacterController(animations, model) {
   })
 
   const ROTATION_SPEED = 10 // Adjust for faster/slower turning
-  const MOVEMENT_SPEED = 0.1
+  const MOVEMENT_SPEED = 0.4
   const { UNIT } = HOUSE_CONFIG
   const WALL_PADDING = 0.3
   const characterRadius = 0.2
@@ -58,6 +59,45 @@ export function useCharacterController(animations, model) {
     newAnim.reset().fadeIn(0.2).play()
     
     currentAnimation.current = name
+  }
+
+  const checkWallCollision = (newPosition) => {
+    const COLLISION_THRESHOLD = 0.5 // Adjust this value for collision sensitivity
+    
+    // Check each wall segment
+    for (const direction in mapData.walls) {
+      const walls = mapData.walls[direction]
+      for (const wall of walls) {
+        const start = new THREE.Vector2(wall.start.x, wall.start.z)
+        const end = new THREE.Vector2(wall.end.x, wall.end.z)
+        
+        // Calculate distance from point to line segment
+        const line = end.clone().sub(start)
+        const len = line.length()
+        const lineDirection = line.clone().normalize()
+        
+        const point = new THREE.Vector2(newPosition.x, newPosition.z)
+        const pointToStart = point.clone().sub(start)
+        
+        // Project point onto line
+        const projection = pointToStart.dot(lineDirection)
+        
+        // Check if point projects onto line segment
+        if (projection >= 0 && projection <= len) {
+          const projectedPoint = start.clone().add(lineDirection.multiplyScalar(projection))
+          const distance = point.distanceTo(projectedPoint)
+          
+          if (distance < COLLISION_THRESHOLD) {
+            // Calculate push direction
+            const pushDir = point.clone().sub(projectedPoint).normalize()
+            newPosition.x = projectedPoint.x + pushDir.x * COLLISION_THRESHOLD
+            newPosition.z = projectedPoint.y + pushDir.y * COLLISION_THRESHOLD
+            return true
+          }
+        }
+      }
+    }
+    return false
   }
 
   useEffect(() => {
@@ -154,7 +194,13 @@ export function useCharacterController(animations, model) {
         const targetRotation = Math.atan2(moveVector.x, moveVector.z)
         model.current.rotation.y = targetRotation
 
-        model.current.position.add(moveVector)
+        // Calculate new position
+        const newPosition = model.current.position.clone().add(moveVector)
+        
+        // Check for collisions before applying movement
+        if (!checkWallCollision(newPosition)) {
+          model.current.position.copy(newPosition)
+        }
       }
     }
   })

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTexture, useAnimations, Text } from '@react-three/drei'
-import { useFrame } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader'
 import * as THREE from 'three'
 import { useCharacterController } from '../utils/CharacterController'
@@ -13,6 +13,7 @@ export function Boy({ character }) {
   const mixerRef = useRef()
   const spotlightRef = useRef()
   const nameTagRef = useRef()
+  const { camera } = useThree()
 
   useEffect(() => {
     const loader = new FBXLoader()
@@ -92,13 +93,20 @@ export function Boy({ character }) {
       const position = modelRef.current.position
       // Position the light directly above the character
       spotlightRef.current.position.set(position.x, position.y + 5, position.z)
-      // Target directly below the light (at character position)
       spotlightRef.current.target.position.set(position.x, position.y, position.z)
       spotlightRef.current.target.updateMatrixWorld()
 
-      // Update name tag position to follow character - increased height to 5 units
+      // Update name tag position and rotation to face camera
       if (nameTagRef.current) {
         nameTagRef.current.position.set(position.x, position.y + 3.5, position.z)
+        
+        // Calculate direction to camera
+        const directionToCamera = new THREE.Vector3()
+        directionToCamera.subVectors(camera.position, nameTagRef.current.position)
+        
+        // Calculate rotation to face camera
+        const angleToCamera = Math.atan2(directionToCamera.x, directionToCamera.z)
+        nameTagRef.current.rotation.y = angleToCamera
       }
     }
   })
@@ -125,21 +133,24 @@ export function Boy({ character }) {
         position={character.position}
         rotation={[0, Math.PI, 0]}
       />
-      {/* Floating name tag with increased height */}
-      <Text
+      {/* Billboard name tag that always faces camera */}
+      <group
         ref={nameTagRef}
-        position={[character.position[0], character.position[1] + 5, character.position[2]]}
-        fontSize={0.5}
-        color="white"
-        anchorX="center"
-        anchorY="middle"
-        outlineWidth={0.1}
-        outlineColor="black"
-        renderOrder={1}
-        depthOffset={-1}
+        position={[character.position[0], character.position[1] + 3.5, character.position[2]]}
       >
-        {character.name}
-      </Text>
+        <Text
+          fontSize={0.5}
+          color="white"
+          anchorX="center"
+          anchorY="middle"
+          outlineWidth={0.1}
+          outlineColor="black"
+          renderOrder={1}
+          depthOffset={-1}
+        >
+          {character.name}
+        </Text>
+      </group>
       <group>
         <spotLight
           ref={spotlightRef}
