@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { checkPosition, getCheckpoints, goto, playAnimation } from '../utils/character'
+import { checkPosition, getCheckpoints, goto, playAnimation, wanderAround, talkTo } from '../utils/character'
 
 export function CharacterControlTest({ characters }) {
   const [selectedCharacter, setSelectedCharacter] = useState(null)
@@ -7,6 +7,7 @@ export function CharacterControlTest({ characters }) {
   const [checkpoints, setCheckpoints] = useState([])
   const [selectedCheckpoint, setSelectedCheckpoint] = useState('')
   const [selectedAnimation, setSelectedAnimation] = useState('')
+  const [targetCharacter, setTargetCharacter] = useState(null)
 
   const animations = [
     'Dancing',
@@ -75,6 +76,61 @@ export function CharacterControlTest({ characters }) {
         }
       }
     )
+  }
+
+  const handleWander = () => {
+    if (!selectedCharacter?.ref?.current) return
+
+    const movement = wanderAround(
+      selectedCharacter.name,
+      {
+        playAnimation: (name) => {
+          if (selectedCharacter.animations?.[name]) {
+            selectedCharacter.animations[name].reset().fadeIn(0.2).play()
+          }
+        }
+      }
+    )
+
+    if (movement) {
+      selectedCharacter.ref.current.activeGoto = movement
+    }
+  }
+
+  const handleTalkTo = () => {
+    if (!selectedCharacter?.ref?.current || !targetCharacter?.ref?.current) return
+
+    const interaction = talkTo(
+      selectedCharacter.name,
+      targetCharacter.name,
+      {
+        playAnimation: (name) => {
+          if (selectedCharacter.animations?.[name]) {
+            selectedCharacter.animations[name].reset().fadeIn(0.2).play()
+          }
+        }
+      },
+      {
+        playAnimation: (name) => {
+          if (targetCharacter.animations?.[name]) {
+            targetCharacter.animations[name].reset().fadeIn(0.2).play()
+          }
+        }
+      }
+    )
+
+    if (interaction) {
+      // Wrap the interaction in an object with an update method
+      selectedCharacter.ref.current.activeGoto = {
+        update: (model, delta) => 
+          interaction.update(model, targetCharacter.ref.current, delta)
+      }
+      
+      // Do the same for the target character
+      targetCharacter.ref.current.activeGoto = {
+        update: () => false
+      }
+    }
   }
 
   return (
@@ -169,6 +225,45 @@ export function CharacterControlTest({ characters }) {
           disabled={!selectedCharacter || !selectedCheckpoint}
         >
           Go to Location
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <button
+          className="bg-yellow-500 text-white px-4 py-2 rounded w-full mb-2"
+          onClick={handleWander}
+          disabled={!selectedCharacter}
+        >
+          Wander Around
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Talk to:</label>
+        <select 
+          className="w-full p-2 border rounded mb-2"
+          value={targetCharacter?.id || ''}
+          onChange={(e) => {
+            const char = characters.find(c => c.id === Number(e.target.value))
+            setTargetCharacter(char)
+          }}
+          disabled={!selectedCharacter}
+        >
+          <option value="">Select character...</option>
+          {characters
+            .filter(char => char.id !== selectedCharacter?.id)
+            .map(char => (
+              <option key={char.id} value={char.id}>
+                {char.name}
+              </option>
+            ))}
+        </select>
+        <button
+          className="bg-indigo-500 text-white px-4 py-2 rounded w-full"
+          onClick={handleTalkTo}
+          disabled={!selectedCharacter || !targetCharacter}
+        >
+          Talk to Character
         </button>
       </div>
     </div>

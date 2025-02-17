@@ -214,4 +214,122 @@ export const mapInfo = {
   rooms: mapData.rooms,
   commonArea: mapData.commonArea,
   boundaries: mapData.metadata.boundaries
+}
+
+// Helper to get random talking area
+const getRandomTalkingArea = () => {
+  const areas = mapData.commonArea.talkingAreas
+  return areas[Math.floor(Math.random() * areas.length)]
+}
+
+// Get random checkpoint for wandering
+const getRandomCheckpoint = () => {
+  const checkpoints = getCheckpoints()
+  const checkpointKeys = Object.keys(checkpoints)
+  return checkpointKeys[Math.floor(Math.random() * checkpointKeys.length)]
+}
+
+// Wander around function
+export const wanderAround = (character, controller) => {
+  let currentDestination = null
+  let moveTimer = 0
+  const WAIT_TIME = 3000 // 3 seconds between movements
+
+  const movement = {
+    update: (model, delta) => {
+      if (!model) return false
+
+      // If waiting between movements
+      if (moveTimer > 0) {
+        moveTimer -= delta * 1000
+        return false
+      }
+
+      // If no current destination or reached destination, pick new one
+      if (!currentDestination) {
+        const newCheckpoint = getRandomCheckpoint()
+        const newDestination = goto(character, newCheckpoint, controller)
+        if (newDestination) {
+          currentDestination = newDestination
+        }
+        return false
+      }
+
+      // Update current movement
+      const reachedDestination = currentDestination.update(model, delta)
+      
+      if (reachedDestination) {
+        // Reset destination and start timer
+        currentDestination = null
+        moveTimer = WAIT_TIME
+        // Play idle animation
+        if (controller?.playAnimation) {
+          controller.playAnimation('Happy')
+        }
+      }
+
+      return false
+    }
+  }
+
+  return movement
+}
+
+// Talk to another character
+export const talkTo = (character1, character2, controller1, controller2) => {
+  const talkingArea = getRandomTalkingArea()
+  let phase = 'moving'
+  let char1Movement = null
+  let char2Movement = null
+
+  const interaction = {
+    update: (model1, model2, delta) => {
+      if (!model1 || !model2) return false
+
+      switch (phase) {
+        case 'moving':
+          // Initialize movements if not already done
+          if (!char1Movement) {
+            const movement = goto(character1, talkingArea.id, controller1)
+            if (movement) char1Movement = movement
+          }
+          if (!char2Movement) {
+            const movement = goto(character2, talkingArea.id, controller2)
+            if (movement) char2Movement = movement
+          }
+
+          // Make sure both movements were initialized
+          if (!char1Movement || !char2Movement) return false
+
+          // Update movements
+          const char1Done = char1Movement.update(model1, delta)
+          const char2Done = char2Movement.update(model2, delta)
+
+          // If both characters reached the talking area
+          if (char1Done && char2Done) {
+            phase = 'talking'
+            // Face each other
+            const angle = Math.atan2(
+              model2.position.x - model1.position.x,
+              model2.position.z - model1.position.z
+            )
+            model1.rotation.y = angle
+            model2.rotation.y = angle + Math.PI
+
+            // Start talking animation
+            controller1?.playAnimation('Talking')
+            controller2?.playAnimation('Talking')
+          }
+          break
+
+        case 'talking':
+          // Characters are already talking
+          return true
+      }
+
+      return false
+    }
+  }
+
+  return interaction
 } 
