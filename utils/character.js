@@ -223,10 +223,26 @@ const getRandomTalkingArea = () => {
 }
 
 // Get random checkpoint for wandering
-const getRandomCheckpoint = () => {
+const getRandomCheckpoint = (currentCheckpoint) => {
   const checkpoints = getCheckpoints()
   const checkpointKeys = Object.keys(checkpoints)
-  return checkpointKeys[Math.floor(Math.random() * checkpointKeys.length)]
+  
+  // Separate beds and meeting areas
+  const beds = checkpointKeys.filter(key => key.includes('bed'))
+  const meetingAreas = checkpointKeys.filter(key => key.includes('area'))
+  
+  // If current checkpoint is a bed, go to a meeting area
+  if (currentCheckpoint && currentCheckpoint.includes('bed')) {
+    return meetingAreas[Math.floor(Math.random() * meetingAreas.length)]
+  }
+  // If current checkpoint is a meeting area, go to a bed
+  else if (currentCheckpoint && currentCheckpoint.includes('area')) {
+    return beds[Math.floor(Math.random() * beds.length)]
+  }
+  // If no current checkpoint, start with a random bed
+  else {
+    return beds[Math.floor(Math.random() * beds.length)]
+  }
 }
 
 // Wander around function
@@ -234,6 +250,7 @@ export const wanderAround = (character, controller) => {
   let currentDestination = null
   let moveTimer = 0
   const WAIT_TIME = 3000 // 3 seconds between movements
+  let currentCheckpoint = null
 
   const movement = {
     update: (model, delta) => {
@@ -247,10 +264,11 @@ export const wanderAround = (character, controller) => {
 
       // If no current destination or reached destination, pick new one
       if (!currentDestination) {
-        const newCheckpoint = getRandomCheckpoint()
+        const newCheckpoint = getRandomCheckpoint(currentCheckpoint)
         const newDestination = goto(character, newCheckpoint, controller)
         if (newDestination) {
           currentDestination = newDestination
+          currentCheckpoint = newCheckpoint
         }
         return false
       }
