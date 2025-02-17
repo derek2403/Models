@@ -182,6 +182,33 @@ export const goto = (character, checkpointId, controller) => {
   }
 }
 
+// Animation control function
+export const playAnimation = (character, animationName, controller) => {
+  if (!controller || !controller.playAnimation) {
+    console.error('Animation controller not found')
+    return null
+  }
+
+  // List of available animations
+  const validAnimations = [
+    'Run',
+    'Dancing',
+    'Happy',
+    'Sad',
+    'Singing',
+    'Talking',
+    'Arguing'
+  ]
+
+  if (!validAnimations.includes(animationName)) {
+    console.error(`Invalid animation: ${animationName}`)
+    return null
+  }
+
+  controller.playAnimation(animationName)
+  return true
+}
+
 // Export map data for reference
 export const mapInfo = {
   rooms: mapData.rooms,

@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react'
-import { checkPosition, getCheckpoints, goto } from '../utils/character'
+import { checkPosition, getCheckpoints, goto, playAnimation } from '../utils/character'
 
 export function CharacterControlTest({ characters }) {
   const [selectedCharacter, setSelectedCharacter] = useState(null)
   const [currentPosition, setCurrentPosition] = useState(null)
   const [checkpoints, setCheckpoints] = useState([])
   const [selectedCheckpoint, setSelectedCheckpoint] = useState('')
+  const [selectedAnimation, setSelectedAnimation] = useState('')
+
+  const animations = [
+    'Dancing',
+    'Happy',
+    'Sad',
+    'Singing',
+    'Talking',
+    'Arguing'
+  ]
 
   useEffect(() => {
     // Get all available checkpoints
@@ -44,6 +54,27 @@ export function CharacterControlTest({ characters }) {
       // Store the movement update function in the character's ref
       selectedCharacter.ref.current.activeGoto = movement
     }
+  }
+
+  const handlePlayAnimation = () => {
+    if (!selectedCharacter || !selectedAnimation) return
+
+    playAnimation(
+      selectedCharacter.name,
+      selectedAnimation,
+      {
+        playAnimation: (name) => {
+          if (selectedCharacter.animations?.[name]) {
+            // Stop any current animations
+            Object.values(selectedCharacter.animations).forEach(anim => {
+              anim.fadeOut(0.2)
+            })
+            // Play new animation
+            selectedCharacter.animations[name].reset().fadeIn(0.2).play()
+          }
+        }
+      }
+    )
   }
 
   return (
@@ -89,6 +120,31 @@ export function CharacterControlTest({ characters }) {
             )}
           </div>
         )}
+      </div>
+
+      {/* Animation Control */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-2">Play Animation:</label>
+        <select 
+          className="w-full p-2 border rounded mb-2"
+          value={selectedAnimation}
+          onChange={(e) => setSelectedAnimation(e.target.value)}
+          disabled={!selectedCharacter}
+        >
+          <option value="">Select animation...</option>
+          {animations.map(anim => (
+            <option key={anim} value={anim}>
+              {anim}
+            </option>
+          ))}
+        </select>
+        <button
+          className="bg-purple-500 text-white px-4 py-2 rounded w-full"
+          onClick={handlePlayAnimation}
+          disabled={!selectedCharacter || !selectedAnimation}
+        >
+          Play Animation
+        </button>
       </div>
 
       {/* Goto Control */}
