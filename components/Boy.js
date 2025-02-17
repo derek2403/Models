@@ -14,6 +14,7 @@ export function Boy({ character }) {
   const spotlightRef = useRef()
   const nameTagRef = useRef()
   const { camera } = useThree()
+  const activeGotoRef = useRef(null)
 
   useEffect(() => {
     const loader = new FBXLoader()
@@ -89,6 +90,21 @@ export function Boy({ character }) {
       mixerRef.current.update(delta)
     }
 
+    // Update goto movement if active
+    if (modelRef.current?.activeGoto) {
+      const finished = modelRef.current.activeGoto.update(modelRef.current, delta)
+      if (finished) {
+        // Clear the goto reference and ensure standing animation
+        modelRef.current.activeGoto = null
+        if (animationsLoaded.Run) {
+          animationsLoaded.Run.fadeOut(0.2) // Fade out running animation
+        }
+        if (animationsLoaded.Stand) {
+          animationsLoaded.Stand.reset().fadeIn(0.2).play()
+        }
+      }
+    }
+
     if (modelRef.current && spotlightRef.current) {
       const position = modelRef.current.position
       // Position the light directly above the character
@@ -122,6 +138,13 @@ export function Boy({ character }) {
   useEffect(() => {
     console.log(`Character is at: ${position.x}, ${position.z}`)
   }, [position])
+
+  useEffect(() => {
+    if (character && modelRef.current) {
+      character.ref = modelRef
+      character.animations = animationsLoaded
+    }
+  }, [character, modelRef.current, animationsLoaded])
 
   if (!model) return null
 

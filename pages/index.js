@@ -9,6 +9,7 @@ import { CreateCharacterModal } from '../components/CreateCharacterModal'
 import { CharactersListModal } from '../components/CharactersListModal'
 import { TimeSimulation } from '../utils/TimeSimulation'
 import weatherConfigs from '../config/weather.json'
+import { CharacterControlTest } from '../components/CharacterControlTest'
 
 export default function Home() {
   const [weather, setWeather] = useState('sunny')
@@ -107,20 +108,20 @@ export default function Home() {
           far: 1000
         }}
       >
-        <color attach="background" args={[currentConfig.skyColor]} />
+        <color attach="background" args={['#87CEEB']} /> {/* Sunny sky blue */}
         
         <Suspense fallback={null}>
-          <ambientLight intensity={currentConfig.ambientLight} />
+          <ambientLight intensity={1} />
           <directionalLight
             position={[10, 10, 5]}
-            intensity={currentConfig.directionalLight}
+            intensity={1.5}
             castShadow
             shadow-mapSize-width={2048}
             shadow-mapSize-height={2048}
           />
           
           {characters.map(character => renderCharacter(character))}
-          <Environment weatherType={weather} timeState={timeState} />
+          <Environment weatherType="sunny" timeState={{ timeOfDay: 'day', dayProgress: 0.5 }} />
           
           <OrbitControls
             target={[0, 0, 0]}
@@ -135,9 +136,7 @@ export default function Home() {
             maxDistance={50}
           />
           
-          {weather === 'sunny' && timeState.timeOfDay === 'day' && (
-            <EnvironmentMap preset="sunset" />
-          )}
+          <EnvironmentMap preset="sunset" />
         </Suspense>
       </Canvas>
 
@@ -172,12 +171,7 @@ export default function Home() {
         characters={characters}
       />
 
-      <WeatherControls
-        onWeatherChange={setWeather}
-        timeSimRef={timeSimRef}
-        currentWeather={weather}
-        currentTime={timeState.date}
-      />
+      <CharacterControlTest characters={characters} />
     </div>
   )
 }
