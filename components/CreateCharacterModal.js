@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import presets from '../data/presets.json'
 
 export function CreateCharacterModal({ 
@@ -8,11 +8,57 @@ export function CreateCharacterModal({
   characterForm, 
   setCharacterForm 
 }) {
+  const [twitterHandle, setTwitterHandle] = useState('')
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [error, setError] = useState('')
+
   const defaultNeeds = {
     hunger: 80,
     energy: 80,
     social: 80,
     happiness: 80
+  }
+
+  const handleTwitterAnalysis = async () => {
+    if (!twitterHandle) {
+      setError('Please enter a Twitter handle')
+      return
+    }
+
+    setIsAnalyzing(true)
+    setError('')
+
+    try {
+      const response = await fetch('/api/analyze-twitter', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ handle: twitterHandle }),
+      })
+
+      const data = await response.json()
+      
+      if (data.success) {
+        setCharacterForm({
+          name: data.profile.name || '',
+          occupation: data.analysis.occupation || '',
+          mbti: data.analysis.mbti || '',
+          age: data.analysis.age || '',
+          hobby: data.analysis.hobby || '',
+          gender: data.analysis.gender || '',
+          characteristics: data.analysis.characteristics || ['', '', '', '', ''],
+          goals: data.analysis.goals || ['', '', ''],
+          needs: defaultNeeds
+        })
+      } else {
+        setError(data.error || 'Failed to analyze Twitter profile')
+      }
+    } catch (error) {
+      setError('Failed to analyze Twitter profile')
+    } finally {
+      setIsAnalyzing(false)
+    }
   }
 
   const handleSubmit = (e) => {
@@ -55,6 +101,27 @@ export function CreateCharacterModal({
           <span>🎲</span> Random
         </button>
       </div>
+
+      <div className="mb-4 p-4 border rounded">
+        <h3 className="text-lg mb-2">Import from Twitter</h3>
+        <div className="flex gap-2">
+          <input
+            className="flex-1 p-2 border rounded"
+            placeholder="Enter Twitter handle"
+            value={twitterHandle}
+            onChange={(e) => setTwitterHandle(e.target.value)}
+          />
+          <button
+            onClick={handleTwitterAnalysis}
+            disabled={isAnalyzing}
+            className="bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
+          >
+            {isAnalyzing ? 'Analyzing...' : 'Import'}
+          </button>
+        </div>
+        {error && <p className="text-red-500 mt-2 text-sm">{error}</p>}
+      </div>
+
       <form onSubmit={handleSubmit}>
         <input
           required
