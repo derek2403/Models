@@ -22,30 +22,50 @@ ${JSON.stringify(userData, null, 2)}
 
 Provide a structured analysis. Return ONLY a valid JSON object with no additional text, following this exact format:
 {
-  "occupation": "predicted occupation",
+  "occupation": "predicted occupation (be creative and specific based on writing style, interests, and tweet content)",
   "mbti": "MBTI personality type",
-  "age": "estimated age range",
   "hobby": "main interests/hobbies",
-  "gender": "inferred gender if apparent",
+  "gender": "male or female (you must choose one based on name analysis, writing style, and content - never leave empty)",
   "characteristics": ["trait1", "trait2", "trait3", "trait4", "trait5"],
   "goals": ["goal1", "goal2", "goal3"]
 }`;
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4",
       messages: [
         {
           role: "system",
-          content: "You are an expert personality analyst. You must respond with valid JSON only, no additional text or explanations. For goals, predict 3 likely personal or professional goals based on their profile and tweets.",
+          content: `You are an expert personality and career analyst. Important rules:
+1. For gender: You MUST ALWAYS predict either 'male' or 'female' based on:
+   - Name analysis
+   - Writing style patterns
+   - Content themes and interests
+   - Profile picture if mentioned
+   - Never return empty or unknown for gender
+2. For occupation analysis:
+   - Analyze writing style and vocabulary
+   - Look for industry-specific jargon
+   - Consider interests and engagement patterns
+   - Factor in communication style
+   - Make specific predictions based on tweet content`,
         },
         {
           role: "user",
           content: prompt,
         },
       ],
+      temperature: 0.7,
     });
 
-    const analysis = JSON.parse(completion.choices[0].message.content.trim());
+    let analysis = JSON.parse(completion.choices[0].message.content.trim());
+    
+    // Fallback gender if somehow still empty (shouldn't happen with updated prompt)
+    if (!analysis.gender || !['male', 'female'].includes(analysis.gender.toLowerCase())) {
+      analysis.gender = profile.name.toLowerCase().includes('mrs') || 
+                       profile.name.toLowerCase().includes('ms') || 
+                       profile.name.toLowerCase().includes('miss') ? 'female' : 'male';
+    }
+
     return {
       success: true,
       analysis,

@@ -44,7 +44,6 @@ export function CreateCharacterModal({
           name: data.profile.name || '',
           occupation: data.analysis.occupation || '',
           mbti: data.analysis.mbti || '',
-          age: data.analysis.age || '',
           hobby: data.analysis.hobby || '',
           gender: data.analysis.gender || '',
           characteristics: data.analysis.characteristics || ['', '', '', '', ''],
@@ -64,17 +63,14 @@ export function CreateCharacterModal({
   const handleSubmit = (e) => {
     e.preventDefault()
     if (!characterForm.name || !characterForm.occupation || 
-        !characterForm.mbti || !characterForm.age || 
-        !characterForm.hobby || !characterForm.gender ||
+        !characterForm.mbti || !characterForm.hobby || 
+        !characterForm.gender ||
         characterForm.characteristics.some(char => !char) ||
         characterForm.goals.some(goal => !goal)) {
       alert("Please fill in all fields")
       return
     }
-    onSubmit({
-      ...characterForm,
-      needs: defaultNeeds
-    })
+    onSubmit(characterForm)
   }
 
   const handleRandomize = () => {
@@ -143,14 +139,6 @@ export function CreateCharacterModal({
           placeholder="MBTI"
           value={characterForm.mbti}
           onChange={e => setCharacterForm(prev => ({ ...prev, mbti: e.target.value }))}
-        />
-        <input
-          required
-          type="number"
-          className="w-full mb-2 p-2 border rounded"
-          placeholder="Age"
-          value={characterForm.age}
-          onChange={e => setCharacterForm(prev => ({ ...prev, age: e.target.value }))}
         />
         <input
           required
