@@ -8,6 +8,8 @@ import { WeatherControls } from '../components/WeatherControls'
 import { CreateCharacterModal } from '../components/CreateCharacterModal'
 import { CharactersListModal } from '../components/CharactersListModal'
 import { TimeSimulation } from '../utils/TimeSimulation'
+import { gameState } from '../utils/gameState'
+import { claudeMonet } from '../characters/ClaudeMonet'
 import weatherConfigs from '../config/weather.json'
 import { CharacterControlTest } from '../components/CharacterControlTest'
 
@@ -39,6 +41,16 @@ export default function Home() {
     date: new Date()
   })
   const timeSimRef = useRef(new TimeSimulation(1000))
+
+  // Initialize game state and Claude Monet
+  useEffect(() => {
+    gameState.initialize();
+
+    // Cleanup when component unmounts
+    return () => {
+      claudeMonet.cleanup();
+    };
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -88,7 +100,13 @@ export default function Home() {
   }
 
   const renderCharacter = (character) => {
-    const gender = character.gender.toLowerCase()
+    // Special case for Claude Monet
+    if (character === claudeMonet) {
+      return <Boy key="claudeMonet" character={character} />
+    }
+    
+    // Regular characters
+    const gender = character.gender?.toLowerCase()
     if (gender === 'male') {
       return <Boy key={character.id} character={character} />
     } else if (gender === 'female') {
@@ -120,6 +138,10 @@ export default function Home() {
             shadow-mapSize-height={2048}
           />
           
+          {/* Render Claude Monet first */}
+          {renderCharacter(claudeMonet)}
+          
+          {/* Render other characters */}
           {characters.map(character => renderCharacter(character))}
           <Environment weatherType="sunny" timeState={{ timeOfDay: 'day', dayProgress: 0.5 }} />
           
